@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <title>Екатеринбург метро — таймер прибытия поезда</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        bg: '#020617',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="min-h-screen bg-slate-950 text-slate-50 antialiased">
+<div class="min-h-screen max-w-5xl mx-auto px-4 py-6 flex flex-col gap-4">
+    <!-- HEADER -->
+    <header class="flex flex-wrap gap-4 items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-slate-100 via-cyan-400 to-slate-900 shadow-2xl relative overflow-hidden">
+                <div class="absolute inset-1 rounded-2xl border border-white/30 border-t-cyan-300 border-r-cyan-400"></div>
+            </div>
+            <div>
+                <h1 class="text-lg font-semibold tracking-wide">Метро Екатеринбург</h1>
+                <p class="text-xs text-slate-400">Онлайн-таймер прибытия поезда</p>
+            </div>
+        </div>
+
+        <div
+                class="w-full sm:w-auto flex flex-col items-center sm:items-end
+         gap-0.5 px-4 py-2 rounded-xl
+         bg-slate-900/80 border border-slate-700/80 shadow-xl">
+  <span class="text-[10px] uppercase tracking-[0.16em] text-slate-400">
+    Сейчас в Екатеринбурге
+  </span>
+            <span id="current-time" class="font-mono text-sm tabular-nums">--:--:--</span>
+            <span class="text-[10px] text-slate-500">
+    Asia/Yekaterinburg (UTC+5)
+  </span>
+        </div>
+
+    </header>
+
+    <!-- CONTROLS -->
+    <main class="flex flex-col gap-4">
+        <section class="rounded-3xl bg-slate-900/80 border border-slate-700/80 shadow-2xl px-4 py-4 backdrop-blur">
+            <h2 class="text-sm font-semibold mb-3">Параметры поездки</h2>
+
+            <div class="grid gap-4 md:grid-cols-2">
+                <!-- Станция -->
+                <div class="flex flex-col gap-1.5">
+                    <label for="station-select" class="text-[11px] uppercase tracking-[0.16em] text-slate-400">
+                        Станция
+                    </label>
+                    <select
+                            id="station-select"
+                            class="w-full rounded-xl bg-slate-950/80 border border-slate-600 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-cyan-400/60 focus:border-cyan-300 transition"
+                    >
+                        <option value="">Выберите станцию…</option>
+                    </select>
+                </div>
+
+                <!-- Направление -->
+                <div class="flex flex-col gap-1.5">
+            <span class="text-[11px] uppercase tracking-[0.16em] text-slate-400">
+              Направление
+            </span>
+                    <div
+                            id="direction-container"
+                            class="min-h-[40px] flex flex-wrap items-center gap-2"
+                    >
+              <span class="text-xs text-slate-500">
+                Сначала выберите станцию
+              </span>
+                    </div>
+                </div>
+
+                <!-- Тип дня -->
+                <div class="flex flex-col gap-1.5 md:col-span-2">
+            <span class="text-[11px] uppercase tracking-[0.16em] text-slate-400">
+              Тип дня
+            </span>
+                    <div class="inline-flex items-center rounded-full border border-slate-600 bg-slate-950/80 p-1 gap-1">
+                        <button
+                                type="button"
+                                id="daytype-auto"
+                                data-daytype="auto"
+                                class="px-3 py-1.5 text-[11px] rounded-full bg-cyan-500/15 text-cyan-300 font-medium transition shadow-sm"
+                        >
+                            Авто (по календарю)
+                        </button>
+                        <button
+                                type="button"
+                                id="daytype-weekday"
+                                data-daytype="weekday"
+                                class="px-3 py-1.5 text-[11px] rounded-full text-slate-300 hover:bg-slate-800/90 transition"
+                        >
+                            Рабочий
+                        </button>
+                        <button
+                                type="button"
+                                id="daytype-weekend"
+                                data-daytype="weekend"
+                                class="px-3 py-1.5 text-[11px] rounded-full text-slate-300 hover:bg-slate-800/90 transition"
+                        >
+                            Выходной
+                        </button>
+                    </div>
+                    <p id="daytype-hint" class="text-xs text-slate-500 mt-1"></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- COUNTDOWN -->
+        <section class="rounded-3xl bg-slate-900/80 border border-slate-700/80 shadow-2xl px-4 py-4 backdrop-blur">
+            <div class="flex flex-col md:flex-row gap-4 items-stretch">
+                <div class="flex-1">
+                    <p class="text-xs text-slate-400">Ближайший поезд</p>
+                    <div id="countdown-display" class="mt-1 text-4xl md:text-5xl font-semibold tracking-[0.2em] font-mono tabular-nums">
+                        --:--
+                    </div>
+                    <p id="countdown-eta" class="mt-1 text-sm text-slate-400">
+                        Выберите станцию и направление
+                    </p>
+                </div>
+
+                <div class="flex-1 md:max-w-xs rounded-2xl border border-slate-600 bg-slate-950/80 px-3 py-3 grid grid-cols-2 gap-3 text-xs">
+                    <div class="flex flex-col gap-1">
+              <span class="text-[10px] text-slate-400 uppercase tracking-[0.16em]">
+                Отправление
+              </span>
+                        <span id="meta-departure" class="text-sm">—</span>
+                    </div>
+                    <div class="flex flex-col gap-1">
+              <span class="text-[10px] text-slate-400 uppercase tracking-[0.16em]">
+                Тип дня
+              </span>
+                        <span id="meta-daytype" class="text-sm">—</span>
+                    </div>
+                    <div class="flex flex-col gap-1">
+              <span class="text-[10px] text-slate-400 uppercase tracking-[0.16em]">
+                Станция
+              </span>
+                        <span id="meta-station" class="text-sm">—</span>
+                    </div>
+                    <div class="flex flex-col gap-1">
+              <span class="text-[10px] text-slate-400 uppercase tracking-[0.16em]">
+                Направление
+              </span>
+                        <span id="meta-direction" class="text-sm">—</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TIMETABLE -->
+        <section class="rounded-3xl bg-slate-900/80 border border-slate-700/80 shadow-2xl px-4 py-4 backdrop-blur flex flex-col">
+            <div class="flex items-baseline justify-between gap-2">
+                <h2 class="text-sm font-semibold">Расписание на сегодня</h2>
+                <span id="timetable-caption" class="text-xs text-slate-500">
+            Нет данных
+          </span>
+            </div>
+
+            <div id="timetable-container" class="mt-2 overflow-visible">
+                <!-- таблица будет подставлена скриптом -->
+            </div>
+        </section>
+    </main>
+
+    <footer class="mt-2 text-[11px] text-slate-500 flex flex-col gap-0.5">
+        <span>Данные расписания внесены вручную на основе официальной информации метро Екатеринбурга.</span>
+        <span class="opacity-90">Возможны расхождения с фактическим движением поездов.</span>
+    </footer>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
